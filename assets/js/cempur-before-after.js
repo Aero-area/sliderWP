@@ -34,6 +34,54 @@
         slider.setAttribute('data-position', String(position));
     }
 
+    function isInteractiveTarget(target) {
+        if (!target || !target.closest) {
+            return false;
+        }
+
+        return !!target.closest('.cempur-ba-cta, .cempur-ba-fullscreen');
+    }
+
+    function syncFullscreenState(slider) {
+        slider.classList.toggle('is-fullscreen', document.fullscreenElement === slider);
+    }
+
+    function toggleFullscreen(slider) {
+        if (!document.fullscreenEnabled) {
+            return;
+        }
+
+        if (document.fullscreenElement === slider) {
+            document.exitFullscreen();
+            return;
+        }
+
+        slider.requestFullscreen();
+    }
+
+    function setupFullscreen(slider) {
+        var fullscreenToggle = slider.querySelector('.cempur-ba-fullscreen');
+
+        if (!fullscreenToggle) {
+            return;
+        }
+
+        if (!document.fullscreenEnabled || !slider.requestFullscreen) {
+            fullscreenToggle.style.display = 'none';
+            return;
+        }
+
+        fullscreenToggle.addEventListener('click', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            toggleFullscreen(slider);
+        });
+
+        document.addEventListener('fullscreenchange', function () {
+            syncFullscreenState(slider);
+        });
+    }
+
     function setupSlider(slider) {
         if (!slider || slider.dataset.cempurInitialized === '1') {
             return;
@@ -57,6 +105,10 @@
         }
 
         function onPointerDown(event) {
+            if (isInteractiveTarget(event.target)) {
+                return;
+            }
+
             pointerId = event.pointerId;
             slider.setPointerCapture(pointerId);
             updateFromEvent(event);
@@ -79,7 +131,7 @@
         }
 
         function onClick(event) {
-            if (event.target === handle) {
+            if (event.target === handle || isInteractiveTarget(event.target)) {
                 return;
             }
             updateFromEvent(event);
@@ -92,6 +144,7 @@
         slider.addEventListener('click', onClick);
 
         applyPosition(slider, beforeLayer, handle, orientation, position);
+        setupFullscreen(slider);
 
         var afterImage = slider.querySelector('.cempur-ba-image-after img');
         if (afterImage && afterImage.complete) {

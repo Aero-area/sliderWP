@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SliderWP Before/After Preview</title>
+  <link rel="stylesheet" href="../assets/css/cempur-before-after.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      color: #111827;
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 32px auto;
+      padding: 0 16px;
+    }
+    .panel {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .panel label {
+      font-size: 14px;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .panel input,
+    .panel select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    .cempur-ba-slider {
+      height: min(65vh, 560px);
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+    }
+    @media (max-width: 700px) {
+      .panel {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Preview: SliderWP Before/After Slider</h1>
+
+    <div class="panel">
+      <div>
+        <label for="orientation">Orientation</label>
+        <select id="orientation">
+          <option value="horizontal" selected>Horizontal</option>
+          <option value="vertical">Vertical</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="position">Initial Handle Position (<span id="posVal">0.50</span>)</label>
+        <input id="position" type="range" min="0" max="1" step="0.01" value="0.5" />
+      </div>
+
+      <div>
+        <label for="beforeText">Before Label Text</label>
+        <input id="beforeText" type="text" value="Før" />
+      </div>
+
+      <div>
+        <label for="afterText">After Label Text</label>
+        <input id="afterText" type="text" value="Efter" />
+      </div>
+    </div>
+
+    <div id="demoSlider" class="cempur-ba-slider" data-orientation="horizontal" data-position="0.5">
+      <div class="cempur-ba-image cempur-ba-image-after">
+        <img src="./after.svg" alt="Efter" />
+      </div>
+      <div class="cempur-ba-image cempur-ba-image-before">
+        <img src="./before.svg" alt="Før" />
+      </div>
+      <span class="cempur-ba-label cempur-ba-label-before" id="labelBefore">Før</span>
+      <span class="cempur-ba-label cempur-ba-label-after" id="labelAfter">Efter</span>
+      <button type="button" class="cempur-ba-handle" aria-label="Drag to compare images">
+        <span aria-hidden="true" class="cempur-ba-handle-icon"></span>
+      </button>
+    </div>
+  </div>
+
+  <script src="../assets/js/cempur-before-after.js"></script>
+  <script>
+    (function () {
+      var orientationInput = document.getElementById('orientation');
+      var positionInput = document.getElementById('position');
+      var posVal = document.getElementById('posVal');
+      var beforeTextInput = document.getElementById('beforeText');
+      var afterTextInput = document.getElementById('afterText');
+      var slider = document.getElementById('demoSlider');
+      var beforeLabel = document.getElementById('labelBefore');
+      var afterLabel = document.getElementById('labelAfter');
+
+      function reinit() {
+        slider.setAttribute('data-orientation', orientationInput.value);
+        slider.setAttribute('data-position', positionInput.value);
+        slider.dataset.cempurInitialized = '';
+
+        beforeLabel.textContent = beforeTextInput.value;
+        beforeLabel.style.display = beforeTextInput.value ? 'block' : 'none';
+
+        afterLabel.textContent = afterTextInput.value;
+        afterLabel.style.display = afterTextInput.value ? 'block' : 'none';
+
+        // Trigger plugin init logic again.
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+      }
+
+      function updatePosLabel() {
+        posVal.textContent = Number(positionInput.value).toFixed(2);
+      }
+
+      orientationInput.addEventListener('change', reinit);
+      positionInput.addEventListener('input', function () {
+        updatePosLabel();
+        reinit();
+      });
+      beforeTextInput.addEventListener('input', reinit);
+      afterTextInput.addEventListener('input', reinit);
+
+      updatePosLabel();
+      reinit();
+    })();
+  </script>
+</body>
+</html>

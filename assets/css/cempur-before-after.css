@@ -18,6 +18,7 @@
     height: 100% !important;
     display: block;
     object-fit: cover;
+    object-position: center center;
 }
 
 .cempur-ba-image-after {

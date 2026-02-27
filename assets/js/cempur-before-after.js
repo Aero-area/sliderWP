@@ -5,6 +5,19 @@
         return Math.min(max, Math.max(min, value));
     }
 
+    function normalizePosition(value) {
+        var numeric = parseFloat(value);
+        if (isNaN(numeric)) {
+            return 0.5;
+        }
+
+        if (numeric > 1) {
+            numeric = numeric / 100;
+        }
+
+        return clamp(numeric, 0, 1);
+    }
+
     function getPointPosition(event, slider, orientation) {
         var rect = slider.getBoundingClientRect();
         var pointX = event.clientX;
@@ -135,8 +148,8 @@
         }
 
         var orientation = slider.getAttribute('data-orientation') === 'vertical' ? 'vertical' : 'horizontal';
-        var initialPosition = parseFloat(slider.getAttribute('data-position') || '0.5');
-        var position = clamp(isNaN(initialPosition) ? 0.5 : initialPosition, 0, 1);
+        var initialPosition = slider.getAttribute('data-position') || '0.5';
+        var position = normalizePosition(initialPosition);
         var pointerId = null;
 
         function updateFromEvent(event) {

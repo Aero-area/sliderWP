@@ -143,16 +143,17 @@ class Cempur_Before_After_Widget extends \Elementor\Widget_Base {
             array(
                 'label'      => esc_html__( 'Initial Handle Position', 'cempur-before-after-slider' ),
                 'type'       => \Elementor\Controls_Manager::SLIDER,
-                'size_units' => array( 'custom' ),
+                'size_units' => array( '%' ),
                 'range'      => array(
-                    'custom' => array(
+                    '%' => array(
                         'min'  => 0,
-                        'max'  => 1,
-                        'step' => 0.01,
+                        'max'  => 100,
+                        'step' => 1,
                     ),
                 ),
                 'default'    => array(
-                    'size' => 0.5,
+                    'size' => 50,
+                    'unit' => '%',
                 ),
             )
         );
@@ -349,9 +350,10 @@ class Cempur_Before_After_Widget extends \Elementor\Widget_Base {
             return;
         }
 
-        $orientation = ! empty( $settings['orientation'] ) && 'vertical' === $settings['orientation'] ? 'vertical' : 'horizontal';
-        $position    = isset( $settings['initial_handle_position']['size'] ) ? floatval( $settings['initial_handle_position']['size'] ) : 0.5;
-        $position    = max( 0, min( 1, $position ) );
+        $orientation  = ! empty( $settings['orientation'] ) && 'vertical' === $settings['orientation'] ? 'vertical' : 'horizontal';
+        $raw_position = isset( $settings['initial_handle_position']['size'] ) ? floatval( $settings['initial_handle_position']['size'] ) : 50;
+        $position     = $raw_position > 1 ? $raw_position / 100 : $raw_position;
+        $position     = max( 0, min( 1, $position ) );
 
         $before_text      = isset( $settings['before_text'] ) ? $settings['before_text'] : '';
         $after_text       = isset( $settings['after_text'] ) ? $settings['after_text'] : '';
@@ -458,10 +460,11 @@ class Cempur_Before_After_Widget extends \Elementor\Widget_Base {
         }
 
         const orientation = settings.orientation === 'vertical' ? 'vertical' : 'horizontal';
-        const sliderPosition = settings.initial_handle_position && settings.initial_handle_position.size !== undefined
+        const sliderPositionRaw = settings.initial_handle_position && settings.initial_handle_position.size !== undefined
             ? parseFloat( settings.initial_handle_position.size )
-            : 0.5;
+            : 50;
 
+        const sliderPosition = sliderPositionRaw > 1 ? sliderPositionRaw / 100 : sliderPositionRaw;
         const position = Math.max( 0, Math.min( 1, sliderPosition ) );
         const beforeText = settings.before_text ? settings.before_text : '';
         const afterText = settings.after_text ? settings.after_text : '';

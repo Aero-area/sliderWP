@@ -32,6 +32,46 @@
 
         slider.style.setProperty('--cempur-position', String(position));
         slider.setAttribute('data-position', String(position));
+        slider.dispatchEvent(new CustomEvent('cempur:position-change', {
+            detail: {
+                position: position
+            }
+        }));
+    }
+
+    function syncImageRatio(slider) {
+        var beforeImage = slider.querySelector('.cempur-ba-image-before img');
+        var afterImage = slider.querySelector('.cempur-ba-image-after img');
+
+        function setRatioFromImage(image) {
+            if (!image || !image.naturalWidth || !image.naturalHeight) {
+                return false;
+            }
+
+            slider.style.setProperty('--cempur-image-ratio', image.naturalWidth + ' / ' + image.naturalHeight);
+            return true;
+        }
+
+        if (setRatioFromImage(beforeImage) || setRatioFromImage(afterImage)) {
+            slider.classList.add('is-ready');
+        }
+
+        [beforeImage, afterImage].forEach(function (image) {
+            if (!image) {
+                return;
+            }
+
+            if (image.complete) {
+                setRatioFromImage(image);
+                return;
+            }
+
+            image.addEventListener('load', function () {
+                if (setRatioFromImage(image)) {
+                    slider.classList.add('is-ready');
+                }
+            }, { once: true });
+        });
     }
 
     function isInteractiveTarget(target) {
@@ -146,14 +186,7 @@
         applyPosition(slider, beforeLayer, handle, orientation, position);
         setupFullscreen(slider);
 
-        var afterImage = slider.querySelector('.cempur-ba-image-after img');
-        if (afterImage && afterImage.complete) {
-            slider.classList.add('is-ready');
-        } else if (afterImage) {
-            afterImage.addEventListener('load', function () {
-                slider.classList.add('is-ready');
-            }, { once: true });
-        }
+        syncImageRatio(slider);
 
         slider.dataset.cempurInitialized = '1';
     }
@@ -181,4 +214,7 @@
             initAllSliders($scope[0]);
         });
     }
+
+    window.CempurBeforeAfter = window.CempurBeforeAfter || {};
+    window.CempurBeforeAfter.initAllSliders = initAllSliders;
 })();

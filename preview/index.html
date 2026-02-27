@@ -68,7 +68,7 @@
       </div>
 
       <div>
-        <label for="position">Initial Handle Position (<span id="posVal">0.50</span>)</label>
+        <label for="position">Initial Handle Position (<span id="posVal">0.50</span> / <span id="posPct">50%</span>)</label>
         <input id="position" type="range" min="0" max="1" step="0.01" value="0.5" />
       </div>
 
@@ -104,6 +104,7 @@
       var orientationInput = document.getElementById('orientation');
       var positionInput = document.getElementById('position');
       var posVal = document.getElementById('posVal');
+      var posPct = document.getElementById('posPct');
       var beforeTextInput = document.getElementById('beforeText');
       var afterTextInput = document.getElementById('afterText');
       var slider = document.getElementById('demoSlider');
@@ -121,12 +122,15 @@
         afterLabel.textContent = afterTextInput.value;
         afterLabel.style.display = afterTextInput.value ? 'block' : 'none';
 
-        // Trigger plugin init logic again.
-        document.dispatchEvent(new Event('DOMContentLoaded'));
+        if (window.CempurBeforeAfter && window.CempurBeforeAfter.initAllSliders) {
+          window.CempurBeforeAfter.initAllSliders(document);
+        }
       }
 
       function updatePosLabel() {
-        posVal.textContent = Number(positionInput.value).toFixed(2);
+        var value = Number(positionInput.value);
+        posVal.textContent = value.toFixed(2);
+        posPct.textContent = Math.round(value * 100) + '%';
       }
 
       orientationInput.addEventListener('change', reinit);
@@ -136,6 +140,14 @@
       });
       beforeTextInput.addEventListener('input', reinit);
       afterTextInput.addEventListener('input', reinit);
+      slider.addEventListener('cempur:position-change', function (event) {
+        if (!event || !event.detail) {
+          return;
+        }
+
+        positionInput.value = event.detail.position;
+        updatePosLabel();
+      });
 
       updatePosLabel();
       reinit();
